@@ -1,0 +1,3 @@
+name: Plugin
+version: ${maven.build.version}
+main: tech.spencercolton.plugin.Plugin
