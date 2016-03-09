@@ -7,9 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
@@ -26,7 +24,8 @@ public class Server extends Thread {
         this(Router.getPort(), l);
     }
 
-    @Getter private static List<RequestHandler> clients = new CopyOnWriteArrayList<>();
+    @Getter private static List<Client> clients = new CopyOnWriteArrayList<>();
+    @Getter private static HashMap<UUID, Request> requests = new HashMap<>();
 
     public Server(int port, Logger l) {
         this.l = l;
@@ -43,9 +42,9 @@ public class Server extends Thread {
     public void run() {
         while (Router.isActive()) {
             try {
-                RequestHandler r = new RequestHandler(ss.accept(), l);
-                clients.add(r);
-                r.start();
+                Client c = new Client(ss.accept(), l);
+                clients.add(c);
+                c.start();
             } catch (IOException e) {
                 l.severe("Unable to respond to client connection request.");
             }

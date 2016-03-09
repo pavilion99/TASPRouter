@@ -2,6 +2,8 @@ package tech.spencercolton.tasp.router;
 
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
+import tech.spencercolton.tasp.router.Server.Client;
+import tech.spencercolton.tasp.router.Server.Message;
 import tech.spencercolton.tasp.router.Server.Server;
 
 import java.net.SocketAddress;
@@ -41,6 +43,10 @@ public class Router extends JavaPlugin {
     public static boolean isValid(SocketAddress sa, String s) {
         String saa = sa.toString();
         return pairs.get(saa).equals(s);
+    }
+
+    public static void writeAll(Message message) {
+        Server.getClients().forEach(c -> c.sendInterrupt(message));
     }
 
 }

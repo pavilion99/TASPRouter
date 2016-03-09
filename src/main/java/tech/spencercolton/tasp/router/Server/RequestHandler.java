@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -16,6 +18,8 @@ import java.util.logging.Logger;
  */
 public class RequestHandler extends Thread {
 
+    @Getter private final Client clientObj;
+
     @Getter private final UUID uid = UUID.randomUUID();
     @Getter private final Socket client;
     private PrintWriter out;
@@ -23,13 +27,16 @@ public class RequestHandler extends Thread {
 
     private final Logger l;
 
-    private ConnectionState cs = null;
+    private boolean waiting = true;
 
-    public RequestHandler(Socket s, Logger l) {
+    private List<Message> queue = new ArrayList<>();
+
+    String input = null;
+
+    public RequestHandler(Socket s, Logger l, Client c) {
         this.l = l;
         this.client = s;
-
-        this.cs = ConnectionState.CONNECTING;
+        this.clientObj = c;
 
         try (
                 PrintWriter x = new PrintWriter(
@@ -53,52 +60,124 @@ public class RequestHandler extends Thread {
 
     @Override
     public void run() {
-        this.cs = ConnectionState.WAITING_PWD;
-
-        String input, output = null;
+        if(!check_pwd())
+            return;
 
         try {
             while ((input = in.readLine()) != null) {
-                switch(cs) {
-                    case CONNECTED: {
-                        output = "PWD";
-                        this.cs = ConnectionState.WAITING_PWD;
+                waiting = false;
+
+                switch (input) {
+                    case "REQ": {
+                        rcv_req();
                         break;
                     }
-                    case WAITING_PWD: {
-                        if(Router.isValid(client.getRemoteSocketAddress(), input)) {
-                            output = "AOK";
-                            this.cs = ConnectionState.WAITING_CMD;
-                        } else {
-                            output = "PWD";
-                        }
+                    case "RES": {
+                        rcv_res();
                         break;
-                    }
-                    case WAITING_CMD: {
-                        if(!input.equals("CMD"))
-                            break;
-
-                        String request = in.readLine();
-                        request += "§";
-                        String temp;
-                        while (!(temp = in.readLine()).equals("TERM")) {
-                            request += temp;
-                            request += "§";
-                        }
-                        request = request.substring(0, request.length() - 1);
-
-
                     }
                 }
 
-                if( output != null ) {
-                    out.println(output);
-                    output = null;
-                }
+                queue.stream().forEach(
+                        s -> s.getParts().forEach(
+                                x -> out.println(x)
+                        )
+                );
+
+                waiting = true;
             }
         } catch(IOException e) {
             l.severe("Error reading message from client at " + client.getRemoteSocketAddress().toString() + ".");
         }
+    }
+
+    private void rcv_req() {
+        try {
+            if (!input.equals("REQ"))
+                return;
+
+            List<String> msg = new ArrayList<>();
+            msg.add("REQ");
+
+            String temp;
+            while (!(temp = in.readLine()).equals("TERM")) {
+                msg.add(temp);
+            }
+
+            msg.add("TERM");
+
+            UUID u = UUID.randomUUID();
+
+            Request r = new Request(msg, this.clientObj, u);
+
+            out.println("RID");
+            out.println(u.toString());
+        } catch (IOException e) {
+            l.warning("Error reading client request at host " + client.getRemoteSocketAddress().toString() + ".");
+        }
+    }
+
+    private void rcv_res() {
+        try {
+            if (!input.equals("RES"))
+                return;
+
+            List<String> msg = new ArrayList<>();
+            msg.add("RES");
+
+            UUID u = UUID.fromString(in.readLine());
+            msg.add(u.toString());
+
+            String temp;
+            while (!(temp = in.readLine()).equals("TERM")) {
+                msg.add(temp);
+            }
+
+            msg.add("TERM");
+
+            Request r = Request.getByUUID(u);
+
+            if(r == null)
+                return;
+
+            r.respond(new Message(msg));
+        } catch (IOException e) {
+            l.warning("Error reading request response at host " + client.getRemoteSocketAddress().toString() + ".");
+        }
+    }
+
+    private boolean check_pwd() {
+        boolean good = false;
+        String inTemp;
+
+        out.println("PWD");
+
+        try {
+            int i = 0;
+
+            while (!good && ((inTemp = in.readLine()) != null) && i < 3) {
+                if (Router.isValid(client.getRemoteSocketAddress(), inTemp))
+                    good = true;
+                else
+                    out.println("ERR");
+
+                i++;
+            }
+
+            if ( i >= 3 )
+                out.close();
+
+            return good;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public void queueMessage(Message m) {
+        if (waiting)
+            m.getParts().forEach(g -> this.out.println(g));
+        else
+            this.queue.add(m);
     }
 
 }

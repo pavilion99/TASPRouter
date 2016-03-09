@@ -7,14 +7,7 @@ public enum RequestStatus {
 
     WAITING,
     SENT,
-    RESPONSE;
-
-    public enum Response {
-
-        SUCCESS,
-        FAILURE
-
-    }
-
+    SUCCESS,
+    FAILURE;
 
 }
