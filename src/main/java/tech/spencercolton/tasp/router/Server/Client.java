@@ -16,9 +16,6 @@ public class Client {
     public Client(Socket s, Logger l) {
         this.requestHandler = new RequestHandler(s, l, this);
         this.socket = s;
-    }
-
-    public void start() {
         this.requestHandler.start();
     }
 
