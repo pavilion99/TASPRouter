@@ -2,7 +2,6 @@ package tech.spencercolton.tasp.router;
 
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import tech.spencercolton.tasp.router.Server.Client;
 import tech.spencercolton.tasp.router.Server.Message;
 import tech.spencercolton.tasp.router.Server.Server;
 
@@ -14,7 +13,7 @@ import java.util.HashMap;
  */
 public class Router extends JavaPlugin {
 
-    @Getter private Server server;
+    private Server server;
     @Getter private static int port;
 
     @Getter private static boolean active = true;
