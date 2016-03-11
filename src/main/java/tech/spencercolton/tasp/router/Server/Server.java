@@ -29,8 +29,8 @@ public class Server extends Thread {
 
     public Server(int port, Logger l) {
         this.l = l;
-        try (ServerSocket z = new ServerSocket(port)) {
-            this.ss = z;
+        try {
+            this.ss = new ServerSocket(port);
             l.info("New server instance starting on port " + port + ".");
             this.start();
         } catch (IOException e) {
@@ -42,15 +42,15 @@ public class Server extends Thread {
 
     @Override
     public void run() {
-        try {
-            while (Router.isActive()) {
+        while (Router.isActive()) {
+            try {
                 Client c = new Client(ss.accept(), l);
                 clients.add(c);
                 c.start();
+            } catch (IOException e) {
+                l.severe("Unable to respond to client connection request.");
+                l.severe(e.getMessage());
             }
-        } catch (IOException e) {
-            l.severe("Unable to respond to client connection request.");
-            l.severe(e.getMessage());
         }
     }
 
