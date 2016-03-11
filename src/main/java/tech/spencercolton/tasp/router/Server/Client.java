@@ -16,7 +16,6 @@ public class Client {
     public Client(Socket s, Logger l) {
         this.requestHandler = new RequestHandler(s, l, this);
         this.socket = s;
-        this.requestHandler.start();
     }
 
     public void sendInterrupt(Message message) {
