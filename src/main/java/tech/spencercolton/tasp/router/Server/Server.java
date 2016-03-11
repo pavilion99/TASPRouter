@@ -31,6 +31,7 @@ public class Server extends Thread {
         this.l = l;
         try (ServerSocket z = new ServerSocket(port)) {
             this.ss = z;
+            l.info("New server instance starting on port " + port + ".");
             this.start();
         } catch (IOException e) {
             Router.toggle();
