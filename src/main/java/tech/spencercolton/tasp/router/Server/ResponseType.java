@@ -3,9 +3,11 @@ package tech.spencercolton.tasp.router.Server;
 /**
  * @author Spencer Colton
  */
-public enum MessageType {
+public enum ResponseType {
 
-    REQUEST,
-    RESPONSE
+    NONE,
+    RNA,
+    FAIL,
+    SUCCESS
 
 }

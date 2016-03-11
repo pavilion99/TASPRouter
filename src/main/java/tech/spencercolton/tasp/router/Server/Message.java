@@ -16,28 +16,6 @@ public class Message {
         this.parts = components;
     }
 
-    public Message(String... components) {
-        this(Arrays.asList(components));
-    }
-
-    public Message(MessageType mt, String... components) {
-        if(mt == MessageType.REQUEST) {
-            List<String> comp = new ArrayList<>();
-            comp.add("REQ");
-            comp.addAll(Arrays.asList(components));
-            comp.add("TERM");
-            this.parts = comp;
-        } else if (mt == MessageType.RESPONSE) {
-            List<String> comp = new ArrayList<>();
-            comp.add("RES");
-            comp.addAll(Arrays.asList(components));
-            comp.add("TERM");
-            this.parts = comp;
-        } else {
-            this.parts = new ArrayList<>();
-        }
-    }
-
     public Stream<String> getParts() {
         return parts.stream();
     }

@@ -6,7 +6,6 @@ package tech.spencercolton.tasp.router.Server;
 public enum RequestStatus {
 
     WAITING,
-    SENT,
     SUCCESS,
     FAILURE;
 

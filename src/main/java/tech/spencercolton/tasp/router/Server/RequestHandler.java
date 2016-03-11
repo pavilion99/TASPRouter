@@ -78,11 +78,10 @@ public class RequestHandler extends Thread {
                     }
                 }
 
-                queue.stream().forEach(
-                        s -> s.getParts().forEach(
-                                x -> out.println(x)
-                        )
-                );
+                for(Message m : queue) {
+                    m.getParts().forEach(out::println);
+                    queue.remove(m);
+                }
 
                 waiting = true;
             }
@@ -159,13 +158,16 @@ public class RequestHandler extends Thread {
                 if (Router.isValid(client.getRemoteSocketAddress(), inTemp))
                     good = true;
                 else
-                    out.println("ERR");
+                    out.println("PMM");
 
                 i++;
             }
 
             if ( i >= 3 )
                 out.close();
+
+            if (good)
+                out.println("PWA");
 
             return good;
         } catch (IOException e) {
