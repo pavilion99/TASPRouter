@@ -42,14 +42,15 @@ public class Server extends Thread {
 
     @Override
     public void run() {
-        while (Router.isActive()) {
-            try {
+        try {
+            while (Router.isActive()) {
                 Client c = new Client(ss.accept(), l);
                 clients.add(c);
                 c.start();
-            } catch (IOException e) {
-                l.severe("Unable to respond to client connection request.");
             }
+        } catch (IOException e) {
+            l.severe("Unable to respond to client connection request.");
+            l.severe(e.getMessage());
         }
     }
 
