@@ -98,6 +98,8 @@ public class RequestHandler extends Thread {
             List<String> msg = new ArrayList<>();
             msg.add("REQ");
 
+            String destination = in.readLine();
+
             String temp;
             while (!(temp = in.readLine()).equals("TERM")) {
                 msg.add(temp);
@@ -139,7 +141,7 @@ public class RequestHandler extends Thread {
             if(r == null)
                 return;
 
-            r.respond(new Message(msg));
+            r.respond(new Message(msg), this.clientObj);
         } catch (IOException e) {
             l.warning("Error reading request response at host " + client.getRemoteSocketAddress().toString() + ".");
         }

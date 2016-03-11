@@ -23,7 +23,14 @@ public class Request {
 
     private HashMap<Client, ResponseType> responses = new HashMap<>();
 
+    @Getter
+    private String destination;
+
     private Request(Message message, Client source, UUID uid) {
+        this(message, source, uid, "ALL");
+    }
+
+    private Request(Message message, Client source, UUID uid, String dest) {
         this.status = RequestStatus.WAITING;
         this.uid = uid;
         this.message = message;
@@ -32,6 +39,9 @@ public class Request {
         Server.getClients().stream().forEach(x -> responses.put(x, ResponseType.NONE));
 
         requests.add(this);
+
+        this.destination = dest;
+
         this.send();
     }
 
@@ -85,7 +95,11 @@ public class Request {
     }
 
     private void send() {
-        Router.writeAll(this.getMessage());
+        if(this.destination.equals("ALL")) {
+            Router.writeAll(this.getMessage());
+        } else {
+
+        }
     }
 
 }
