@@ -3,11 +3,11 @@ package tech.spencercolton.tasp.router.Server;
 import lombok.Getter;
 import tech.spencercolton.tasp.router.Router;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
@@ -33,6 +33,7 @@ public class Server extends Thread {
             this.ss = z;
             this.start();
         } catch (IOException e) {
+            Router.toggle();
             l.severe(" ** CANNOT START TASP SERVER ** ");
             l.severe(e.getMessage());
         }
