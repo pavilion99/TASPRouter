@@ -10,7 +10,7 @@
     </properties>
 
     <groupId>tech.spencercolton</groupId>
-    <artifactId>TASPSockets</artifactId>
+    <artifactId>TASPRouter</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <repositories>
